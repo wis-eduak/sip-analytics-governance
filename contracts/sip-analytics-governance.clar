@@ -279,3 +279,46 @@
         (ok true)
     )
 )
+
+;; Contract Control
+(define-public (pause-contract)
+    (begin
+        (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
+        (var-set contract-paused true)
+        (ok true)
+    )
+)
+
+(define-public (resume-contract)
+    (begin
+        (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
+        (var-set contract-paused false)
+        (ok true)
+    )
+)
+
+;; Read-Only Functions
+
+(define-read-only (get-contract-owner)
+    (ok CONTRACT-OWNER)
+)
+
+(define-read-only (get-stx-pool)
+    (ok (var-get stx-pool))
+)
+
+(define-read-only (get-proposal-count)
+    (ok (var-get proposal-count))
+)
+
+;; Private Functions
+
+(define-private (get-tier-info (stake-amount uint))
+    (if (>= stake-amount u10000000)
+        {tier-level: u3, reward-multiplier: u200}
+        (if (>= stake-amount u5000000)
+            {tier-level: u2, reward-multiplier: u150}
+            {tier-level: u1, reward-multiplier: u100}
+        )
+    )
+)
