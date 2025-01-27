@@ -76,3 +76,56 @@
         rewards-multiplier: uint
     }
 )
+
+;; Staking Positions
+(define-map StakingPositions
+    principal
+    {
+        amount: uint,
+        start-block: uint,
+        last-claim: uint,
+        lock-period: uint,
+        cooldown-start: (optional uint),
+        accumulated-rewards: uint
+    }
+)
+
+;; Tier System Configuration
+(define-map TierLevels
+    uint
+    {
+        minimum-stake: uint,
+        reward-multiplier: uint,
+        features-enabled: (list 10 bool)
+    }
+)
+
+;; Public Functions
+
+;; Contract Administration
+(define-public (initialize-contract)
+    (begin
+        (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
+        
+        ;; Set up tier levels
+        (map-set TierLevels u1 
+            {
+                minimum-stake: u1000000,
+                reward-multiplier: u100,
+                features-enabled: (list true false false false false false false false false false)
+            })
+        (map-set TierLevels u2
+            {
+                minimum-stake: u5000000,
+                reward-multiplier: u150,
+                features-enabled: (list true true true false false false false false false false)
+            })
+        (map-set TierLevels u3
+            {
+                minimum-stake: u10000000,
+                reward-multiplier: u200,
+                features-enabled: (list true true true true true false false false false false)
+            })
+        (ok true)
+    )
+)
